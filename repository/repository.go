@@ -1,4 +1,4 @@
-package db
+package repository
 
 import (
 	"github.com/google/uuid"
@@ -6,7 +6,7 @@ import (
 	"time"
 )
 
-type DBContext struct {
+type RepositoryContext struct {
 	DB *gorm.DB
 }
 
@@ -29,17 +29,17 @@ type BasicRepository[T BasicEntity] interface {
 	Count() (int64, error)
 }
 
-func NewBasicRepository[T BasicEntity](serverContext *DBContext) BasicRepository[T] {
-	return basicRepositoryImpl[T]{ServerContext: serverContext}
+func NewBasicRepository[T BasicEntity](repositoryContext *RepositoryContext) BasicRepository[T] {
+	return basicRepositoryImpl[T]{RepositoryContext: repositoryContext}
 }
 
 type basicRepositoryImpl[T BasicEntity] struct {
-	ServerContext *DBContext
+	RepositoryContext *RepositoryContext
 }
 
 func (repo basicRepositoryImpl[T]) FindByID(id uuid.UUID) (*T, error) {
 	var basic T
-	result := repo.ServerContext.DB.First(&basic, id)
+	result := repo.RepositoryContext.DB.First(&basic, id)
 	if result.Error != nil {
 		return nil, result.Error
 	}
@@ -48,7 +48,7 @@ func (repo basicRepositoryImpl[T]) FindByID(id uuid.UUID) (*T, error) {
 
 func (repo basicRepositoryImpl[T]) FindAll() ([]T, error) {
 	var basics []T
-	result := repo.ServerContext.DB.Find(&basics)
+	result := repo.RepositoryContext.DB.Find(&basics)
 	if result.Error != nil {
 		return nil, result.Error
 	}
@@ -56,7 +56,7 @@ func (repo basicRepositoryImpl[T]) FindAll() ([]T, error) {
 }
 
 func (repo basicRepositoryImpl[T]) Save(basic *T) (*T, error) {
-	result := repo.ServerContext.DB.Save(basic)
+	result := repo.RepositoryContext.DB.Save(basic)
 	if result.Error != nil {
 		return nil, result.Error
 	}
@@ -65,13 +65,13 @@ func (repo basicRepositoryImpl[T]) Save(basic *T) (*T, error) {
 
 func (repo basicRepositoryImpl[T]) Delete(id uuid.UUID) error {
 	emptyObject := new(T)
-	tx := repo.ServerContext.DB.Delete(emptyObject, id)
+	tx := repo.RepositoryContext.DB.Delete(emptyObject, id)
 	return tx.Error
 }
 
 func (repo basicRepositoryImpl[T]) Exists(id uuid.UUID) (bool, error) {
 	var basic T
-	result := repo.ServerContext.DB.First(&basic, id)
+	result := repo.RepositoryContext.DB.First(&basic, id)
 	if result.Error != nil {
 		return false, result.Error
 	}
@@ -81,7 +81,7 @@ func (repo basicRepositoryImpl[T]) Exists(id uuid.UUID) (bool, error) {
 func (repo basicRepositoryImpl[T]) Count() (int64, error) {
 	emptyObject := new(T)
 	var count int64
-	tx := repo.ServerContext.DB.Model(&emptyObject).Count(&count)
+	tx := repo.RepositoryContext.DB.Model(&emptyObject).Count(&count)
 	return count, tx.Error
 }
 

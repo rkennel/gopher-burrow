@@ -1,4 +1,4 @@
-package db
+package repository
 
 import (
 	"github.com/google/uuid"
@@ -13,7 +13,7 @@ const BLANK_UUID = "00000000-0000-0000-0000-000000000000"
 type DBTestSuite struct {
 	suite.Suite
 	Repository GiJoeRepository
-	DBContext  DBContext
+	DBContext  RepositoryContext
 }
 
 func TestRunDBTestSuite(t *testing.T) {
@@ -30,7 +30,7 @@ func (suite *DBTestSuite) SetupSuite() {
 
 	db.AutoMigrate(&GiJoe{})
 
-	dbContext := DBContext{
+	dbContext := RepositoryContext{
 		DB: db,
 	}
 
