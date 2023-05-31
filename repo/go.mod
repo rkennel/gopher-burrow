@@ -1,4 +1,4 @@
-module github.com/rkennel/gopher-burrow/repository
+module github.com/rkennel/gopher-burrow/repo
 
 go 1.20
 
